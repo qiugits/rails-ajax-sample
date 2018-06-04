@@ -1,0 +1,59 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Users</h1>
+<!-- Ajax incremental search -->
+<input type=form id="form" placeholder="Input user name to search" style="width= 250px;"/>
+<!-- ajax result -->
+<ul id="result">
+</ul>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript">
+  $(document).on('turbolinks:load', function(){
+    $(document).on('keyup', '#form', function(e){
+      e.preventDefault();
+      var input = $.trim($(this).val());
+      $.ajax({
+        url: '/users/search',
+        type: 'GET',
+        data: ('keyword=' + input),
+        processData: false,
+        contentType: false,
+        dataType: 'json'
+      })
+      //ここから追記
+        .done(function(data){ //データを受け取ることに成功したら、dataを引数に取って以下のことする(dataには@usersが入っている状態ですね)
+          $('#result').find('li').remove();  //idがresultの子要素のliを削除する
+          $(data).each(function(i, user){ //dataをuserという変数に代入して、以下のことを繰り返し行う(単純なeach文ですね)
+            $('#result').append('<li>' + user.name + '</li>') //resultというidの要素に対して、<li>ユーザーの名前</li>を追加する。
+          });
+        })
+    });
+  });
+
+</script>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Age</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.name %></td>
+        <td><%= user.age %></td>
+        <td><%= link_to 'Show', user %></td>
+        <td><%= link_to 'Edit', edit_user_path(user) %></td>
+        <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New User', new_user_path %>
